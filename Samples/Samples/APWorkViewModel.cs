@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Linq;
 
 namespace Samples
 {
@@ -59,13 +61,21 @@ namespace Samples
         [Reactive] public string ConsoleText { get; private set; }
         public ICommand GetReading { get; }
         public ICommand Disconnect { get; }
+        public ICommand StartScan { get; }
+        public ICommand StopScan { get; }
+        public ICommand Connect { get; }
 
         IAdapter adapter;
+        IDisposable scan;
         IDevice device;
         public IGattCharacteristic CharacteristicWrite { get; private set; }
 
+        bool IsNotifying;
+        bool foundDeviceScan;
+
         ModelType selectedModel;
         [Reactive] public bool scanEnabled { get; set; }
+        [Reactive] public bool IsScanning { get; private set; }
         public APWorkViewModel()
         {
             scanEnabled = false;
@@ -73,57 +83,65 @@ namespace Samples
             allowedId.Add(knownId);
             allowedId.Add(new Guid("00000000-0000-0000-0000-cc81d47f7569 "));
 
+            this.StartScan = ReactiveCommand.Create(() => 
+            {
+                if (scanEnabled)
+                {
+                    foundDeviceScan = false;
+
+                    if (this.IsScanning)
+                    {
+                        this.scan?.Dispose();
+                        this.IsScanning = false;
+                    }
+                    else
+                    {
+                        this.IsScanning = true;
+                        //try to scan first
+                        this.scan = this.adapter.Scan(
+                        //new ScanConfig
+                        //{
+                        //    ServiceUuids = allowedId
+                        //}
+                        )
+                        .Buffer(TimeSpan.FromSeconds(1))
+                        .Timeout(TimeSpan.FromSeconds(5))
+                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .Subscribe(
+                            results =>
+                            {
+                                if (!foundDeviceScan)
+                                {
+                                    var fs = (from d1 in results
+                                              join d2 in allowedId
+                                              on d1.Device.Uuid equals (Guid)d2
+                                              select new { d1.Device.Uuid, d1.Rssi }).OrderBy(i => i.Rssi);
+
+                                    if (fs.Count() > 0)
+                                    {
+                                        var foundDeviceId = fs.Last().Uuid;
+
+                                        if (foundDeviceId != null)
+                                        {
+                                            this.scan?.Dispose();
+                                            this.IsScanning = false;
+                                            foundDeviceScan = true;
+                                            knownId = foundDeviceId;
+                                        }
+                                    }
+                                }
+                            },
+                            ex => ConsoleOutput("Scan Error:" + ex.ToString())
+                        ).DisposeWith(this.DeactivateWith);
+                    }
+                }
+            });
+
             this.GetReading = ReactiveCommand.Create(() =>
             {
                 try
                 {
-                    if (device != null && device.IsConnected() && !scanEnabled)
-                    {
-                        device.GetKnownCharacteristics(serviceguidHC, new Guid[] { wguid }).Subscribe(c =>
-                        {
-                            ConsoleOutput("characteristic:" + c.Uuid.ToString());
-                            
-                            if (c.CanNotify())
-                            {
-                                //enable notification
-                                //c.EnableNotifications(true);
-                                ConsoleOutput("notification is enabled");
-                                c.RegisterAndNotify().Subscribe(result =>
-                                {
-                                    string data = new string(Encoding.UTF8.GetChars(result.Data));
-                                    ProcessData(data);
-                                });
-                            }
-
-                            if (c.CanWrite())
-                            {
-                                //send command
-                                SendCommand(c);
-                            }
-                        });
-                    }
-
-                    if (scanEnabled)
-                    {
-                        //try to scan first
-                        var scanner = this.adapter.Scan(
-                            new ScanConfig
-                            {
-                                ServiceUuids = allowedId
-                            }
-                        )
-                        .Subscribe(
-                            results =>
-                            {
-                                this.adapter.StopScan();
-
-                                knownId = results.Device.Uuid;
-                                ConsoleOutput("found device" + results.Device.Name + " and stopped the scan");
-                                ConnectDevice();
-                            },
-                            ex => ConsoleOutput("Scan Error:" + ex.ToString())
-                        );
-                    }
+                    GetReadingForConnectedDevice();
                 }
                 catch (Exception getDeviceEx)
                 {
@@ -150,6 +168,7 @@ namespace Samples
             this.adapter = parameters.GetValue<IAdapter>("adapter");
             this.selectedModel = parameters.GetValue<ModelType>("modelType");
             this.knownId = parameters.GetValue<Guid>("knownId");
+            this.IsScanning = false;
 
             if (knownId.Equals(new Guid("00000000-0000-0000-0000-000000000000")))
             {
@@ -174,26 +193,25 @@ namespace Samples
                 {
                     this.device = knownDevice;
 
-                    this.device.Connect();
-                    ConsoleOutput("DEVICE IS CONNECTED");
-                    //this.device
-                    //.WhenStatusChanged()
-                    //.Subscribe(status =>
-                    //{
-                    //    switch (status)
-                    //    {
-                    //        case ConnectionStatus.Connecting:
-                    //            break;
-                    //        case ConnectionStatus.Connected:
-                    //            ConsoleOutput("DEVICE IS CONNECTED");
-                    //            break;
-                    //        case ConnectionStatus.Disconnected:
-                    //            ConsoleOutput("DEVICE IS DISCONNECTED");
-                    //            break;
-                    //    }
-                    //});
-                    //.DisposeWith(this.DeactivateWith);
+                    this.device
+                    .WhenStatusChanged()
+                    .Subscribe(status =>
+                    {
+                        switch (status)
+                        {
+                            case ConnectionStatus.Connecting:
+                                break;
+                            case ConnectionStatus.Connected:
+                                ConsoleOutput("DEVICE IS CONNECTED");
+                                break;
+                            case ConnectionStatus.Disconnected:
+                                ConsoleOutput("DEVICE IS DISCONNECTED");
+                                break;
+                        }
+                    })
+                    .DisposeWith(this.DeactivateWith);
 
+                    this.device.Connect();
                 });
             }
             catch (Exception en)
@@ -208,6 +226,35 @@ namespace Samples
                 this.device.CancelConnection();
             }
         }
+
+        private void GetReadingForConnectedDevice()
+        {
+            if (device != null && device.IsConnected())
+            {
+                device.GetKnownCharacteristics(serviceguidHC, new Guid[] { wguid }).Subscribe(c =>
+                {
+                    ConsoleOutput("characteristic:" + c.Uuid.ToString());
+
+                    if (c.CanNotify() && !this.IsNotifying)
+                    {
+                        IsNotifying = true;
+                        ConsoleOutput("notification is enabled");
+                        c.RegisterAndNotify().Subscribe(result =>
+                        {
+                            string data = new string(Encoding.UTF8.GetChars(result.Data));
+                            ProcessData(data);
+                        });
+                    }
+
+                    if (c.CanWriteWithoutResponse() || c.CanWriteWithResponse())
+                    {
+                        //send command
+                        SendCommand(c);
+                    }
+                });
+            }
+        }
+
         private void ProcessData(string dataString)
         {
             dataString = "DATA: " + dataString.Replace("\r", "\r\n");// + dataString3.Replace("\r", "\r\n");
@@ -254,15 +301,23 @@ namespace Samples
             {
                 case ModelType.Flowcom3000:
                     cmd = CreateHeader(TXMODE, PUT_TRANSACTION_RESULT);//GetBytes(result.Text);
-                    wc.Write(cmd);
+                    
                     break;
                 case ModelType.FlowcomS8:
                     cmd = GetBytesForUTF8("L");
-                    wc.Write(cmd);
                     break;
             }
 
-            ConsoleOutput("command sent");
+            if (wc.CanWriteWithResponse())
+                wc.Write(cmd).Timeout(TimeSpan.FromSeconds(2))
+                    .Subscribe(
+                            x => ConsoleOutput("Write With Response Complete")
+                        );
+            else if (wc.CanWriteWithoutResponse())
+                wc.WriteWithoutResponse(cmd).Timeout(TimeSpan.FromSeconds(2))
+                    .Subscribe(
+                            x => ConsoleOutput("Write Without Response Complete")
+                        );
         }
         private byte[] CreateHeader(byte mode, byte opcode)
         {

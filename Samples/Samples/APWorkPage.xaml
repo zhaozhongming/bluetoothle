@@ -15,8 +15,11 @@
              HorizontalTextAlignment="Center"></Label>
 
             <StackLayout Grid.Row="1" Orientation="Horizontal">
-                <Button Text="Get Reading" Command="{Binding GetReading}" HorizontalOptions="End" IsEnabled="true"/>
-                <Button Text="Disconnect" Command="{Binding Disconnect}" HorizontalOptions="End" IsEnabled="{Binding scanEnabled}"/>
+                <Button Text="Scan" Command="{Binding StartScan}" HorizontalOptions="End" IsVisible="{Binding scanEnabled}"/>
+                <Button Text="Stop Scan" Command="{Binding StopScan}" HorizontalOptions="End" IsVisible="{Binding scanEnabled}"/>
+                <Button Text="Connect" Command="{Binding Connect}" HorizontalOptions="End" IsVisible="{Binding scanEnabled}"/>
+                <Button Text="Get Reading" Command="{Binding GetReading}" HorizontalOptions="End" IsVisible="true"/>
+                <Button Text="Disconnect" Command="{Binding Disconnect}" HorizontalOptions="End" IsVisible="{Binding scanEnabled}"/>
             </StackLayout>
 
 
