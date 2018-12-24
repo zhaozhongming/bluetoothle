@@ -1,6 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <resources>
 
+    <style name="Theme.Splash" parent="Theme.AppCompat.Light.NoActionBar">
+      <item name="android:windowNoTitle">true</item>
+      <item name="android:windowBackground">@drawable/splash</item>
+    </style>
+
+    <color name="APGreen">#189C4A</color>
+  
     <style name="MainTheme" parent="MainTheme.Base">
     </style>
     <!-- Base theme applied no matter what API -->
@@ -11,7 +18,7 @@
         <item name="windowActionBar">false</item>
         <!-- Set theme colors from http://www.google.com/design/spec/style/color.html#color-color-palette -->
         <!-- colorPrimary is used for the default action bar background -->
-        <item name="colorPrimary">#364961</item>
+        <item name="colorPrimary">#189C4A</item>
         <!-- colorPrimaryDark is used for the status bar -->
         <item name="colorPrimaryDark">#1976D2</item>
         <!-- colorAccent is used as the default value for colorControlActivated

@@ -13,7 +13,6 @@ namespace Samples.Droid
     [Activity(
         Label = "ACR BluetoothLE",
         Icon = "@drawable/icon",
-        MainLauncher = true,
         Theme = "@style/MainTheme",
         ScreenOrientation = ScreenOrientation.Portrait,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation

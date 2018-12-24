@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Samples.APHomePage"
+             Title="{Binding AppVersion, StringFormat='AP Home - {0}'}">
+    <ContentPage.Content>
+        <StackLayout>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Button Grid.Row="1" Text="Flowcom S8" Command="{Binding SelectS8}" HorizontalOptions="FillAndExpand"/>
+                <Button Grid.Row="2" Text="Flowcom 3000" Command="{Binding Select3000}"  HorizontalOptions="FillAndExpand"/>
+            </Grid>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

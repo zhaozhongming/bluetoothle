@@ -34,7 +34,7 @@ namespace Samples
             //        { "adapter", CrossBleAdapter.Current }
             //    }
             //);
-            var result = await this.NavigationService.NavigateAsync("NavigationPage/AdapterListPage");
+            var result = await this.NavigationService.NavigateAsync("NavigationPage/APHomePage");
             if (!result.Success)
                 Console.WriteLine(result.Exception);
         }
@@ -47,6 +47,10 @@ namespace Samples
             containerRegistry.RegisterSingleton<ILogService, LogService>();
 
             containerRegistry.RegisterForNavigation<NavigationPage>();
+
+            containerRegistry.RegisterForNavigation<APHomePage>();
+            containerRegistry.RegisterForNavigation<APSelectDevicePage>();
+            containerRegistry.RegisterForNavigation<APWorkPage>();
             containerRegistry.RegisterForNavigation<AdapterPage>();
 
             containerRegistry.RegisterForNavigation<AdapterListPage>();

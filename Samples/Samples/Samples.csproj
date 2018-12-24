@@ -7,9 +7,11 @@
     <ItemGroup>
         <PackageReference Include="Acr.UserDialogs" Version="7.0.1" />
         <PackageReference Include="Acr.XamForms" Version="4.0.1" />
+        <PackageReference Include="Plugin.BluetoothLE" Version="6.2.3" />
         <PackageReference Include="Prism.Autofac.Forms" Version="7.1.0.431" />
         <PackageReference Include="ReactiveUI.Fody" Version="9.0.1" />
         <PackageReference Include="System.Reactive" Version="4.1.2" />
+        <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
         <PackageReference Include="Xamarin.Forms" Version="3.3.0.912540" />
     </ItemGroup>
 
@@ -23,7 +25,24 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Plugin.BluetoothLE\Plugin.BluetoothLE.csproj" />
+      <Compile Update="APHomePage.xaml.cs">
+        <DependentUpon>APHomePage.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="APWorkPage.xaml.cs">
+        <DependentUpon>APWorkPage.xaml</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="APHomePage.xaml">
+        <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      </EmbeddedResource>
+      <EmbeddedResource Update="APSelectDevicePage.xaml">
+        <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      </EmbeddedResource>
+      <EmbeddedResource Update="APWorkPage.xaml">
+        <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      </EmbeddedResource>
     </ItemGroup>
 
 </Project>

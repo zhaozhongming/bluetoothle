@@ -27,7 +27,14 @@ namespace Samples.Infrastructure
                 return this.deactivateWith;
             }
         }
-
+        public string AppVersion
+        {
+            get
+            {
+                return Xamarin.Forms.DependencyService.Get<IAppVersion>().GetVersion() + " " +
+                    Xamarin.Forms.DependencyService.Get<IAppVersion>().GetBuild();
+            }
+        }
         protected CompositeDisposable DestroyWith { get; } = new CompositeDisposable();
 
 

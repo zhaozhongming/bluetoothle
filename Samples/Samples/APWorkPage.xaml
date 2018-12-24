@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Samples.APWorkPage"
+             Title="Readings">
+    <ContentPage.Content>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="50"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Label Grid.Row="0" Text="{Binding Reading, StringFormat='Reading: {0}'}"
+             FontSize="Large" TextColor="#ff0000" VerticalTextAlignment="Center"
+             HorizontalTextAlignment="Center"></Label>
+
+            <StackLayout Grid.Row="1" Orientation="Horizontal">
+                <Button Text="Get Reading" Command="{Binding GetReading}" HorizontalOptions="End" IsEnabled="true"/>
+                <Button Text="Disconnect" Command="{Binding Disconnect}" HorizontalOptions="End" IsEnabled="{Binding scanEnabled}"/>
+            </StackLayout>
+
+
+            <ScrollView Orientation="Vertical"  Grid.Row="2">
+                <Label Text="{Binding ConsoleText}" />
+            </ScrollView>
+
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

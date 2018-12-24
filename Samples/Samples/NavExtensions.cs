@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Plugin.BluetoothLE;
 using Prism.Navigation;
-
+using Samples.Infrastructure;
 
 namespace Samples
 {
@@ -28,5 +28,16 @@ namespace Samples
             if (!result.Success)
                 Console.WriteLine(result.Exception);
         }
+
+        public static Task NavToAdapterAPWorkS8(this INavigationService navigator)
+            => navigator.Navigate("APSelectDevicePage", new NavigationParameters
+            {
+                { "adapter", CrossBleAdapter.Current }, { "modelType", ModelType.FlowcomS8}
+            });
+        public static Task NavToAdapterAPWork3000(this INavigationService navigator)
+            => navigator.Navigate("APSelectDevicePage", new NavigationParameters
+            {
+                { "adapter", CrossBleAdapter.Current }, { "modelType", ModelType.Flowcom3000}
+            });
     }
 }
