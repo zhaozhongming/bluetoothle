@@ -143,7 +143,7 @@ namespace Samples
                 if (withResponse)
                 {
                     this.Characteristic
-                        .Write(bytes)
+                        .Write(CreateHeader())
                         .Timeout(TimeSpan.FromSeconds(2))
                         .Subscribe(
                             x => UserDialogs.Instance.Toast("Write Complete"),
@@ -153,7 +153,7 @@ namespace Samples
                 else
                 {
                     this.Characteristic
-                        .WriteWithoutResponse(bytes)
+                        .WriteWithoutResponse(CreateHeader())
                         .Timeout(TimeSpan.FromSeconds(2))
                         .Subscribe(
                             x => UserDialogs.Instance.Toast("Write Without Response Complete"),
@@ -227,6 +227,16 @@ namespace Samples
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             return new string(Enumerable.Repeat(chars, length)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        private byte[] CreateHeader()
+        {
+            byte[] header = new byte[4];
+            header[0] = 0x04;
+            header[1] = (byte)(0x68 | 0x00);
+            header[2] = 0x88;
+            header[3] = 0x05;
+            return header;
         }
     }
 }
