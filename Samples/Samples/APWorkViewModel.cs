@@ -218,6 +218,7 @@ namespace Samples
                                 ConsoleOutput("设备已连接");
                                 break;
                             case ConnectionStatus.Disconnected:
+                                FoundDevice = false;
                                 ConsoleOutput("设备已断开");
                                 break;
                         }
@@ -247,27 +248,33 @@ namespace Samples
         {
             if (device != null && device.IsConnected())
             {
-                device.GetKnownCharacteristics(serviceguidHC, new Guid[] { wguid }).Subscribe(c =>
-                {
-                    ConsoleOutput("发现特征:" + c.Uuid.ToString());
-
-                    if (c.CanNotify() && !this.IsNotifying)
+                device.GetKnownCharacteristics(serviceguidHC, new Guid[] { wguid })
+                    .Timeout(TimeSpan.FromSeconds(5))
+                    .Subscribe(c =>
                     {
-                        IsNotifying = true;
-                        c.RegisterAndNotify().Subscribe(result =>
+                        ConsoleOutput("发现特征:" + c.Uuid.ToString());
+
+                        if (c.CanNotify() && !this.IsNotifying)
                         {
-                            string data = new string(Encoding.UTF8.GetChars(result.Data));
-                            ProcessData(data);
-                        });
-                        ConsoleOutput("数据通知服务已启用");
-                    }
+                            IsNotifying = true;
+                            c.RegisterAndNotify().Subscribe(result =>
+                            {
+                                string data = new string(Encoding.UTF8.GetChars(result.Data));
+                                ProcessData(data);
+                            });
+                            ConsoleOutput("数据通知服务已启用");
+                        }
 
-                    if (c.CanWriteWithoutResponse() || c.CanWriteWithResponse())
-                    {
-                        //send command
-                        SendCommand(c);
-                    }
-                });
+                        if (c.CanWriteWithoutResponse() || c.CanWriteWithResponse())
+                        {
+                            //send command
+                            SendCommand(c);
+                        }
+                    },
+                        ex =>
+                        {
+                            ConsoleOutput("获取特征错误:" + ex.ToString());
+                        });
             }
         }
 
