@@ -61,8 +61,6 @@ namespace Samples
         IDevice device;
         public IGattCharacteristic CharacteristicWrite { get; private set; }
 
-        bool IsNotifying;
-
         ModelType selectedModel;
         [Reactive] public bool ScanEnabled { get; set; }
         [Reactive] public bool IsScanning { get; private set; }
@@ -201,12 +199,15 @@ namespace Samples
         {
             try
             {
-                this.adapter.GetKnownDevice(knownId).Subscribe(knownDevice =>
+                this.adapter.GetKnownDevice(knownId)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(knownDevice =>
                 {
                     this.device = knownDevice;
 
                     this.device
                     .WhenStatusChanged()
+                    .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(status =>
                     {
                         switch (status)
@@ -241,6 +242,7 @@ namespace Samples
             if (this.device != null)
             {
                 this.device.CancelConnection();
+                this.device = null;
             }
         }
 
@@ -250,14 +252,16 @@ namespace Samples
             {
                 device.GetKnownCharacteristics(serviceguidHC, new Guid[] { wguid })
                     .Timeout(TimeSpan.FromSeconds(5))
+                    .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(c =>
                     {
                         ConsoleOutput("发现特征:" + c.Uuid.ToString());
 
-                        if (c.CanNotify() && !this.IsNotifying)
+                        if (c.CanNotify())
                         {
-                            IsNotifying = true;
-                            c.RegisterAndNotify().Subscribe(result =>
+                            c.RegisterAndNotify()
+                            .ObserveOn(RxApp.MainThreadScheduler)
+                            .Subscribe(result =>
                             {
                                 string data = new string(Encoding.UTF8.GetChars(result.Data));
                                 ProcessData(data);
@@ -337,11 +341,13 @@ namespace Samples
 
             if (wc.CanWriteWithResponse())
                 wc.Write(cmd).Timeout(TimeSpan.FromSeconds(2))
+                    .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(
                             x => ConsoleOutput("发送读取数据指令成功")
                         );
             else if (wc.CanWriteWithoutResponse())
                 wc.WriteWithoutResponse(cmd).Timeout(TimeSpan.FromSeconds(2))
+                    .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(
                             x => ConsoleOutput("发送单向读取数据指令成功")
                         );

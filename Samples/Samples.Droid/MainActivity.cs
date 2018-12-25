@@ -16,7 +16,7 @@ using Xamarin.Forms.Platform.Android;
 namespace Samples.Droid
 {
     [Activity(
-        Label = "ACR BluetoothLE",
+        Label = "BLE For Flowmeter",
         Icon = "@drawable/icon",
         Theme = "@style/MainTheme",
         ScreenOrientation = ScreenOrientation.Portrait,
