@@ -8,6 +8,7 @@ using Android.OS;
 using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
+using Samples.Infrastructure;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 
@@ -27,7 +28,7 @@ namespace Samples.Droid
         {
             try
             {
-                AppCenter.Start("c787ca2412e270b908c52038422266ed", typeof(Analytics), typeof(Crashes));
+                //AppCenter.Start("c787ca2412e270b908c52038422266ed", typeof(Analytics), typeof(Crashes));
 
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
                 TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
@@ -48,7 +49,10 @@ namespace Samples.Droid
             }
             catch(Exception e)
             {
-                Crashes.TrackError(e);
+                Reading ex = new Reading();
+                ex.ReadingValue = e.Message;
+                StorageHelper.Write(ex).Wait();
+                //Crashes.TrackError(e);
             }
 
         }
@@ -56,13 +60,19 @@ namespace Samples.Droid
         private static void TaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs unobservedTaskExceptionEventArgs)
         {
             var newExc = new Exception("TaskSchedulerOnUnobservedTaskException", unobservedTaskExceptionEventArgs.Exception);
-            Crashes.TrackError(newExc);
+            Reading ex = new Reading();
+            ex.ReadingValue = unobservedTaskExceptionEventArgs.Exception.Message;
+            StorageHelper.Write(ex).Wait();
+            //Crashes.TrackError(newExc);
         }
 
         private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
         {
             var newExc = new Exception("CurrentDomainOnUnhandledException", unhandledExceptionEventArgs.ExceptionObject as Exception);
-            Crashes.TrackError(newExc);
+            Reading ex = new Reading();
+            ex.ReadingValue = newExc.Message;
+            StorageHelper.Write(ex).Wait();
+            //Crashes.TrackError(newExc); 
         }
 
 
