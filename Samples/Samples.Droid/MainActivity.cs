@@ -24,21 +24,37 @@ namespace Samples.Droid
     {
         protected override void OnCreate(Bundle bundle)
         {
-            base.OnCreate(bundle);
-            Forms.Init(this, bundle);
-            FormsAppCompatActivity.ToolbarResource = Resource.Layout.Toolbar;
-            FormsAppCompatActivity.TabLayoutResource = Resource.Layout.Tabbar;
-
-            UserDialogs.Init(() => (Activity)Forms.Context);
-
-            this.LoadApplication(new App(new PlatformInitializer()));
-            this.RequestPermissions(new []
+            try
             {
+                AppCenter.Start("c787ca2412e270b908c52038422266ed", typeof(Analytics), typeof(Crashes));
+
+                AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+
+                base.OnCreate(bundle);
+                Forms.Init(this, bundle);
+                FormsAppCompatActivity.ToolbarResource = Resource.Layout.Toolbar;
+                FormsAppCompatActivity.TabLayoutResource = Resource.Layout.Tabbar;
+
+                UserDialogs.Init(() => (Activity)Forms.Context);
+
+                this.LoadApplication(new App(new PlatformInitializer()));
+                this.RequestPermissions(new[]
+                {
                 Manifest.Permission.AccessCoarseLocation,
                 Manifest.Permission.BluetoothPrivileged
-            }, 0);
+                }, 0);
+            }
+            catch(Exception e)
+            {
+                Crashes.TrackError(e);
+            }
 
-            AppCenter.Start("c787ca2412e270b908c52038422266ed", typeof(Analytics), typeof(Crashes));
+        }
+
+        private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
+        {
+            var newExc = new Exception("CurrentDomainOnUnhandledException", unhandledExceptionEventArgs.ExceptionObject as Exception);
+            Crashes.TrackError(newExc);
         }
 
 
