@@ -64,8 +64,8 @@ namespace Samples.Droid
 
         private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
         {
-            var newExc = new Exception("CurrentDomainOnUnhandledException", unhandledExceptionEventArgs.ExceptionObject as Exception);
-            StorageHelper.WriteLog(newExc.Message).Wait();
+            Exception unHandledEx = unhandledExceptionEventArgs.ExceptionObject as Exception;
+            StorageHelper.WriteLog(unHandledEx.Message + " StackTrace:" + unHandledEx.StackTrace).Wait();
             //Crashes.TrackError(newExc); 
         }
 
