@@ -49,9 +49,7 @@ namespace Samples.Droid
             }
             catch(Exception e)
             {
-                Reading ex = new Reading();
-                ex.ReadingValue = e.Message;
-                StorageHelper.Write(ex).Wait();
+                StorageHelper.WriteLog(e.Message);
                 //Crashes.TrackError(e);
             }
 
@@ -60,18 +58,14 @@ namespace Samples.Droid
         private static void TaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs unobservedTaskExceptionEventArgs)
         {
             var newExc = new Exception("TaskSchedulerOnUnobservedTaskException", unobservedTaskExceptionEventArgs.Exception);
-            Reading ex = new Reading();
-            ex.ReadingValue = unobservedTaskExceptionEventArgs.Exception.Message;
-            StorageHelper.Write(ex).Wait();
+            StorageHelper.WriteLog(newExc.Message).Wait();
             //Crashes.TrackError(newExc);
         }
 
         private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
         {
             var newExc = new Exception("CurrentDomainOnUnhandledException", unhandledExceptionEventArgs.ExceptionObject as Exception);
-            Reading ex = new Reading();
-            ex.ReadingValue = newExc.Message;
-            StorageHelper.Write(ex).Wait();
+            StorageHelper.WriteLog(newExc.Message).Wait();
             //Crashes.TrackError(newExc); 
         }
 

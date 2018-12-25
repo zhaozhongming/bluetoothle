@@ -25,13 +25,6 @@ namespace Samples
         const string cidHC = "0000ffe1-0000-1000-8000-00805f9b34fb";//taobao bluetooth HC-42
         static readonly Guid wguid = new Guid(cidHC);
 
-        //const string serviceidBLE = "0000ffe0-0000-1000-8000-00805f9b34fb";//ble
-        //static readonly Guid serviceguidBLE = new Guid(serviceidBLE);
-        //const string cidBLE = "00031234-0000-1000-8000-00805F9B0130";//ble
-        //static readonly Guid cguidBLE = new Guid(cidBLE);
-        //const string widBLE = "00031234-0000-1000-8000-00805F9B0131";//ble
-        //static readonly Guid wguidBLE = new Guid(widBLE);
-
         #region 3000
         protected byte address = 0x00;
 
