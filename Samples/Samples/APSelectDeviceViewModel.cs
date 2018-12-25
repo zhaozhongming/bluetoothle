@@ -47,7 +47,7 @@ namespace Samples
             PreDefinedGuid = new List<DeviceItem>();
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-ee5d6da44ba7"), "00000000-0000-0000-0000-ee5d6da44ba7"));
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-cc81d47f7569"), "00000000-0000-0000-0000-cc81d47f7569"));
-            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-000000000000"), "I don't know"));
+            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-000000000000"), "我不知道"));
         }
     }
 }

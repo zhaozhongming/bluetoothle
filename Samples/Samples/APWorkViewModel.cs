@@ -60,10 +60,8 @@ namespace Samples
         [Reactive] public float Reading { get; set; }
         [Reactive] public string ConsoleText { get; private set; }
         public ICommand GetReading { get; }
-        public ICommand Disconnect { get; }
         public ICommand StartScan { get; }
         public ICommand StopScan { get; }
-        public ICommand Connect { get; }
 
         IAdapter adapter;
         IDisposable scan;
@@ -71,69 +69,28 @@ namespace Samples
         public IGattCharacteristic CharacteristicWrite { get; private set; }
 
         bool IsNotifying;
-        bool foundDeviceScan;
 
         ModelType selectedModel;
-        [Reactive] public bool scanEnabled { get; set; }
+        [Reactive] public bool ScanEnabled { get; set; }
         [Reactive] public bool IsScanning { get; private set; }
+        [Reactive] public bool FoundDevice { get; set; }
+        [Reactive] public string ScanButtonText { get; private set; }
+
         public APWorkViewModel()
         {
-            scanEnabled = false;
-
+            ScanEnabled = false;
             allowedId.Add(knownId);
             allowedId.Add(new Guid("00000000-0000-0000-0000-cc81d47f7569 "));
 
             this.StartScan = ReactiveCommand.Create(() => 
             {
-                if (scanEnabled)
+                try
                 {
-                    foundDeviceScan = false;
-
-                    if (this.IsScanning)
-                    {
-                        this.scan?.Dispose();
-                        this.IsScanning = false;
-                    }
-                    else
-                    {
-                        this.IsScanning = true;
-                        //try to scan first
-                        this.scan = this.adapter.Scan(
-                        //new ScanConfig
-                        //{
-                        //    ServiceUuids = allowedId
-                        //}
-                        )
-                        .Buffer(TimeSpan.FromSeconds(1))
-                        .Timeout(TimeSpan.FromSeconds(5))
-                        .ObserveOn(RxApp.MainThreadScheduler)
-                        .Subscribe(
-                            results =>
-                            {
-                                if (!foundDeviceScan)
-                                {
-                                    var fs = (from d1 in results
-                                              join d2 in allowedId
-                                              on d1.Device.Uuid equals (Guid)d2
-                                              select new { d1.Device.Uuid, d1.Rssi }).OrderBy(i => i.Rssi);
-
-                                    if (fs.Count() > 0)
-                                    {
-                                        var foundDeviceId = fs.Last().Uuid;
-
-                                        if (foundDeviceId != null)
-                                        {
-                                            this.scan?.Dispose();
-                                            this.IsScanning = false;
-                                            foundDeviceScan = true;
-                                            knownId = foundDeviceId;
-                                        }
-                                    }
-                                }
-                            },
-                            ex => ConsoleOutput("Scan Error:" + ex.ToString())
-                        ).DisposeWith(this.DeactivateWith);
-                    }
+                    TryScan();
+                }
+                catch(Exception eScan)
+                {
+                    ConsoleOutput("扫描错误:" + eScan.Message);
                 }
             });
 
@@ -145,19 +102,7 @@ namespace Samples
                 }
                 catch (Exception getDeviceEx)
                 {
-                    ConsoleOutput("GetReading Error:" + getDeviceEx.Message);
-                }
-            });
-
-            this.Disconnect = ReactiveCommand.Create(() =>
-            {
-                try
-                {
-                    DisconnectDevice();
-                }
-                catch (Exception disEx)
-                {
-                    ConsoleOutput("Disconnect Error:" + disEx.Message);
+                    ConsoleOutput("读取数据错误:" + getDeviceEx.Message);
                 }
             });
         }
@@ -172,7 +117,8 @@ namespace Samples
 
             if (knownId.Equals(new Guid("00000000-0000-0000-0000-000000000000")))
             {
-                scanEnabled = true;
+                ScanEnabled = true;
+                TryScan();
                 return;
             }
 
@@ -185,6 +131,79 @@ namespace Samples
             DisconnectDevice();
         }
 
+        private void TryScan()
+        {
+            if (ScanEnabled)
+            {
+                FoundDevice = false;
+
+                if (this.IsScanning)
+                {
+                    ScanButtonText = "开始扫描";
+                    this.scan?.Dispose();
+                    this.IsScanning = false;
+                }
+                else
+                {
+                    ConsoleOutput("正在扫描设备......");
+                    this.IsScanning = true;
+                    ScanButtonText = "停止扫描";
+                    //try to scan first
+                    this.scan = this.adapter.Scan(
+                    //new ScanConfig
+                    //{
+                    //    ServiceUuids = allowedId
+                    //}
+                    )
+                    .Buffer(TimeSpan.FromSeconds(1))
+                    .Timeout(TimeSpan.FromSeconds(5))
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(
+                        results =>
+                        {
+                            if (!FoundDevice)
+                            {
+                                var fs = (from d1 in results
+                                          join d2 in allowedId
+                                          on d1.Device.Uuid equals (Guid)d2
+                                          select new { d1.Device.Uuid, d1.Rssi }).OrderBy(i => i.Rssi);
+
+                                foreach (var fd in fs)
+                                {
+                                    ConsoleOutput("发现设备:" + fd.Uuid.ToString() + " " + fd.Rssi);
+                                }
+
+                                if (fs.Count() > 0)
+                                {
+                                    var foundDeviceId = fs.Last().Uuid;
+
+                                    if (foundDeviceId != null)
+                                    {
+                                        this.scan?.Dispose();
+                                        this.IsScanning = false;
+                                        ScanButtonText = "开始扫描";
+                                        ConsoleOutput("停止扫描");
+                                        FoundDevice = true;
+                                        knownId = foundDeviceId;
+                                        ConsoleOutput("开始连接:" + foundDeviceId.ToString());
+                                        ConnectDevice();
+                                    }
+                                }
+                            }
+                        },
+                        ex => 
+                        {
+                            ConsoleOutput("扫描错误:" + ex.ToString());
+                            this.scan?.Dispose();
+                            this.IsScanning = false;
+                            ScanButtonText = "开始扫描";
+                            ConsoleOutput("停止扫描");
+                        }
+                    )
+                    .DisposeWith(this.DeactivateWith);
+                }
+            }
+        }
         private void ConnectDevice()
         {
             try
@@ -202,10 +221,11 @@ namespace Samples
                             case ConnectionStatus.Connecting:
                                 break;
                             case ConnectionStatus.Connected:
-                                ConsoleOutput("DEVICE IS CONNECTED");
+                                FoundDevice = true;
+                                ConsoleOutput("设备已连接");
                                 break;
                             case ConnectionStatus.Disconnected:
-                                ConsoleOutput("DEVICE IS DISCONNECTED");
+                                ConsoleOutput("设备已断开");
                                 break;
                         }
                     })
@@ -216,11 +236,14 @@ namespace Samples
             }
             catch (Exception en)
             {
-                ConsoleOutput("OnNav Error:" + en.Message);
+                ConsoleOutput("连接设备出错:" + en.Message);
             }
         }
         private void DisconnectDevice()
         {
+            this.scan?.Dispose();
+            this.IsScanning = false;
+
             if (this.device != null)
             {
                 this.device.CancelConnection();
@@ -233,17 +256,17 @@ namespace Samples
             {
                 device.GetKnownCharacteristics(serviceguidHC, new Guid[] { wguid }).Subscribe(c =>
                 {
-                    ConsoleOutput("characteristic:" + c.Uuid.ToString());
+                    ConsoleOutput("发现特征:" + c.Uuid.ToString());
 
                     if (c.CanNotify() && !this.IsNotifying)
                     {
                         IsNotifying = true;
-                        ConsoleOutput("notification is enabled");
                         c.RegisterAndNotify().Subscribe(result =>
                         {
                             string data = new string(Encoding.UTF8.GetChars(result.Data));
                             ProcessData(data);
                         });
+                        ConsoleOutput("数据通知服务已启用");
                     }
 
                     if (c.CanWriteWithoutResponse() || c.CanWriteWithResponse())
@@ -271,7 +294,9 @@ namespace Samples
                             //save the data to azure storage
                             Reading rdata = new Reading();
                             rdata.ReadingValue = Reading.ToString();
-                            Task.Run(() => StorageHelper.Write(rdata));
+                            //Task.Run(() => StorageHelper.Write(rdata));
+                            ConsoleOutput("数据读取并保存成功");
+                            DisconnectDevice();
                         }
                         catch { }
                     }
@@ -285,7 +310,9 @@ namespace Samples
                             //save the data to azure storage
                             Reading rdata = new Reading();
                             rdata.ReadingValue = Reading.ToString();
-                            Task.Run(() => StorageHelper.Write(rdata));
+                            //Task.Run(() => StorageHelper.Write(rdata));
+                            ConsoleOutput("数据读取并保存成功");
+                            DisconnectDevice();
                         }
                         catch { }
                     }
@@ -311,12 +338,12 @@ namespace Samples
             if (wc.CanWriteWithResponse())
                 wc.Write(cmd).Timeout(TimeSpan.FromSeconds(2))
                     .Subscribe(
-                            x => ConsoleOutput("Write With Response Complete")
+                            x => ConsoleOutput("发送读取数据指令成功")
                         );
             else if (wc.CanWriteWithoutResponse())
                 wc.WriteWithoutResponse(cmd).Timeout(TimeSpan.FromSeconds(2))
                     .Subscribe(
-                            x => ConsoleOutput("Write Without Response Complete")
+                            x => ConsoleOutput("发送单向读取数据指令成功")
                         );
         }
         private byte[] CreateHeader(byte mode, byte opcode)

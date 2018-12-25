@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:acr="clr-namespace:Acr.XamForms;assembly=Acr.XamForms"
              x:Class="Samples.APSelectDevicePage"
-             Title = "Select Device">
+             Title = "选择蓝牙设备">
     <ContentPage.Content>
         <StackLayout>
             <ListView ItemsSource="{Binding PreDefinedGuid}" RowHeight="80">

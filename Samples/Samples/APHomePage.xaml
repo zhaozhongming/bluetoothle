@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Samples.APHomePage"
-             Title="{Binding AppVersion, StringFormat='AP Home - {0}'}">
+             Title="{Binding AppVersion, StringFormat='AP流量计 - 软件版本：{0}'}">
     <ContentPage.Content>
         <StackLayout>
             <Grid>
