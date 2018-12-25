@@ -4,6 +4,9 @@ using Android;
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
+using Microsoft.AppCenter;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 
@@ -34,6 +37,8 @@ namespace Samples.Droid
                 Manifest.Permission.AccessCoarseLocation,
                 Manifest.Permission.BluetoothPrivileged
             }, 0);
+
+            AppCenter.Start("c787ca2412e270b908c52038422266ed", typeof(Analytics), typeof(Crashes));
         }
 
 
