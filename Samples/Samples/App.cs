@@ -51,15 +51,15 @@ namespace Samples
             containerRegistry.RegisterForNavigation<APHomePage>();
             containerRegistry.RegisterForNavigation<APSelectDevicePage>();
             containerRegistry.RegisterForNavigation<APWorkPage>();
-            containerRegistry.RegisterForNavigation<AdapterPage>();
+            //containerRegistry.RegisterForNavigation<AdapterPage>();
 
-            containerRegistry.RegisterForNavigation<AdapterListPage>();
+            //containerRegistry.RegisterForNavigation<AdapterListPage>();
 
-            containerRegistry.RegisterForNavigation<ScanPage>();
-            containerRegistry.RegisterForNavigation<LogPage>();
-            containerRegistry.RegisterForNavigation<ServerPage>();
+            //containerRegistry.RegisterForNavigation<ScanPage>();
+            //containerRegistry.RegisterForNavigation<LogPage>();
+            //containerRegistry.RegisterForNavigation<ServerPage>();
 
-            containerRegistry.RegisterForNavigation<DevicePage>();
+            //containerRegistry.RegisterForNavigation<DevicePage>();
         }
 
 
