@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Acr.UserDialogs;
 using Android;
 using Android.App;
@@ -29,6 +30,7 @@ namespace Samples.Droid
                 AppCenter.Start("c787ca2412e270b908c52038422266ed", typeof(Analytics), typeof(Crashes));
 
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+                TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
 
                 base.OnCreate(bundle);
                 Forms.Init(this, bundle);
@@ -49,6 +51,12 @@ namespace Samples.Droid
                 Crashes.TrackError(e);
             }
 
+        }
+
+        private static void TaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs unobservedTaskExceptionEventArgs)
+        {
+            var newExc = new Exception("TaskSchedulerOnUnobservedTaskException", unobservedTaskExceptionEventArgs.Exception);
+            Crashes.TrackError(newExc);
         }
 
         private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
