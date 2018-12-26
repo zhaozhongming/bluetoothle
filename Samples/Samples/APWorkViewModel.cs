@@ -50,7 +50,7 @@ namespace Samples
         public static readonly byte PUT_TRANSACTION_RESULT = 0x88;
         #endregion
 
-        [Reactive] public float Reading { get; set; }
+        [Reactive] public string Reading { get; set; }
         [Reactive] public string ConsoleText { get; private set; }
         public ICommand GetReading { get; }
         public ICommand StartScan { get; }
@@ -59,6 +59,7 @@ namespace Samples
         IAdapter adapter;
         IDisposable scan;
         IDevice device;
+        IDisposable watcher;
         public IGattCharacteristic CharacteristicWrite { get; private set; }
 
         ModelType selectedModel;
@@ -236,6 +237,8 @@ namespace Samples
         }
         private void DisconnectDevice()
         {
+            this.watcher?.Dispose();
+
             this.scan?.Dispose();
             this.IsScanning = false;
 
@@ -259,12 +262,12 @@ namespace Samples
 
                         if (c.CanNotify())
                         {
-                            c.RegisterAndNotify()
+                            watcher = c.RegisterAndNotify()
                             .ObserveOn(RxApp.MainThreadScheduler)
                             .Subscribe(result =>
                             {
                                 string data = new string(Encoding.UTF8.GetChars(result.Data));
-                                ProcessData(data);
+                                ConsoleOutput(ProcessData(data));
                             });
                             ConsoleOutput("数据通知服务已启用");
                         }
@@ -278,14 +281,14 @@ namespace Samples
                         ex =>
                         {
                             ConsoleOutput("获取特征错误:" + ex.ToString());
-                        });
+                        })
+                        .DisposeWith(this.DeactivateWith);
             }
         }
 
-        private void ProcessData(string dataString)
+        private string ProcessData(string dataString)
         {
-            dataString = "DATA: " + dataString.Replace("\r", "\r\n");// + dataString3.Replace("\r", "\r\n");
-            ConsoleOutput(dataString);
+            dataString = "DATA: " + dataString.Replace("\r", "\r\n");
             //extract the reading
             switch (selectedModel)
             {
@@ -294,13 +297,18 @@ namespace Samples
                     {
                         try
                         {
-                            Reading = Convert.ToSingle(dataString.Split('|')[5].Trim());
-                            //save the data to azure storage
-                            Reading rdata = new Reading();
-                            rdata.ReadingValue = Reading.ToString();
-                            //Task.Run(() => StorageHelper.Write(rdata));
-                            ConsoleOutput("数据读取并保存成功");
-                            DisconnectDevice();
+                            var dataArray = dataString.Split('|');
+                            if (dataArray.Count() > 4)
+                            {
+                                Reading = dataArray[5].Trim();
+                                //save the data to azure storage
+                                Reading rdata = new Reading
+                                {
+                                    ReadingValue = Reading
+                                };
+                                Task.Run(() => StorageHelper.WriteData(rdata));
+                                dataString += "\r\n数据读取并保存成功\r\n";
+                            }
                         }
                         catch { }
                     }
@@ -310,18 +318,25 @@ namespace Samples
                     {
                         try
                         {
-                            Reading = Convert.ToSingle(dataString.Split(',')[2].Trim());
-                            //save the data to azure storage
-                            Reading rdata = new Reading();
-                            rdata.ReadingValue = Reading.ToString();
-                            //Task.Run(() => StorageHelper.Write(rdata));
-                            ConsoleOutput("数据读取并保存成功");
-                            DisconnectDevice();
+                            var dataArray = dataString.Split(',');
+                            if (dataArray.Count() > 1)
+                            {
+                                Reading = dataArray[2].Trim();
+                                //save the data to azure storage
+                                Reading rdata = new Reading
+                                {
+                                    ReadingValue = Reading
+                                };
+                                Task.Run(() => StorageHelper.WriteData(rdata));
+                                dataString += "\r\n数据读取并保存成功\r\n";
+                            }
                         }
                         catch { }
                     }
                     break;
             }
+
+            return dataString;
         }
         private void SendCommand(IGattCharacteristic wc)
         {

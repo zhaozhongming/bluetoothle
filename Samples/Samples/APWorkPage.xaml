@@ -15,8 +15,16 @@
              HorizontalTextAlignment="Center"></Label>
 
             <StackLayout Grid.Row="1" Orientation="Horizontal">
-                <Button Text="{Binding ScanButtonText}" Command="{Binding StartScan}" HorizontalOptions="End" IsVisible="{Binding ScanEnabled}"/>
-                <Button Text="开始读数" Command="{Binding GetReading}" HorizontalOptions="End" IsVisible="true" IsEnabled="{Binding FoundDevice}"/>
+                <Button Text="{Binding ScanButtonText}" Command="{Binding StartScan}" HorizontalOptions="End" 
+                        IsVisible="{Binding ScanEnabled}" IsEnabled="{Binding FoundDevice}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding FoundDevice}" Value="True">
+                            <Setter Property="IsEnabled" Value="False" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+                <Button Text="开始读数" Command="{Binding GetReading}" HorizontalOptions="End" 
+                        IsVisible="true" IsEnabled="{Binding FoundDevice}"/>
             </StackLayout>
 
 
