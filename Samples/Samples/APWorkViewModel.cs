@@ -16,11 +16,10 @@ namespace Samples
 {
     public class APWorkViewModel : ViewModel
     {
-        //private Guid knownId = new Guid("00000000-0000-0000-0000-cc81d47f7569 ");
-        private Guid knownId = new Guid("00000000-0000-0000-0000-ee5d6da44ba7 ");
-        private List<Guid> allowedId = new List<Guid>();
+        private Guid knownId;
+        private List<DeviceItem> allowedDevices = new List<DeviceItem>();
 
-        const string serviceidHC = "0000ffe0-0000-1000-8000-00805f9b34fb";//taobeo HC-42
+        const string serviceidHC = "0000ffe0-0000-1000-8000-00805f9b34fb";//taobao HC-42
         static readonly Guid serviceguidHC = new Guid(serviceidHC);
         const string cidHC = "0000ffe1-0000-1000-8000-00805f9b34fb";//taobao bluetooth HC-42
         static readonly Guid wguid = new Guid(cidHC);
@@ -63,6 +62,8 @@ namespace Samples
         public IGattCharacteristic CharacteristicWrite { get; private set; }
 
         ModelType selectedModel;
+        bool isNotifying = false;
+
         [Reactive] public bool ScanEnabled { get; set; }
         [Reactive] public bool IsScanning { get; private set; }
         [Reactive] public bool FoundDevice { get; set; }
@@ -71,8 +72,6 @@ namespace Samples
         public APWorkViewModel()
         {
             ScanEnabled = false;
-            allowedId.Add(knownId);
-            allowedId.Add(new Guid("00000000-0000-0000-0000-cc81d47f7569 "));
 
             this.StartScan = ReactiveCommand.Create(() => 
             {
@@ -105,7 +104,9 @@ namespace Samples
             this.adapter = parameters.GetValue<IAdapter>("adapter");
             this.selectedModel = parameters.GetValue<ModelType>("modelType");
             this.knownId = parameters.GetValue<Guid>("knownId");
+            this.allowedDevices = parameters.GetValue<List<DeviceItem>>("PreDefinedGuid");
             this.IsScanning = false;
+            this.isNotifying = false;
 
             if (knownId.Equals(new Guid("00000000-0000-0000-0000-000000000000")))
             {
@@ -156,8 +157,8 @@ namespace Samples
                             if (!FoundDevice)
                             {
                                 var fs = (from d1 in results
-                                          join d2 in allowedId
-                                          on d1.Device.Uuid equals (Guid)d2
+                                          join d2 in allowedDevices
+                                          on d1.Device.Uuid equals d2.Id
                                           select new { d1.Device.Uuid, d1.Rssi }).OrderBy(i => i.Rssi);
 
                                 foreach (var fd in fs)
@@ -260,14 +261,20 @@ namespace Samples
                     {
                         ConsoleOutput("发现特征:" + c.Uuid.ToString());
 
-                        if (c.CanNotify())
+                        if (c.CanNotify() && !isNotifying)
                         {
+                            isNotifying = true;
                             watcher = c.RegisterAndNotify()
                             .ObserveOn(RxApp.MainThreadScheduler)
                             .Subscribe(result =>
                             {
                                 string data = new string(Encoding.UTF8.GetChars(result.Data));
-                                ConsoleOutput(ProcessData(data));
+                                bool getReadingSuccess = ProcessData(data);
+                                if (getReadingSuccess)
+                                {
+                                    watcher.Dispose();
+                                    isNotifying = false;
+                                }
                             });
                             ConsoleOutput("数据通知服务已启用");
                         }
@@ -286,9 +293,11 @@ namespace Samples
             }
         }
 
-        private string ProcessData(string dataString)
+        private bool ProcessData(string dataString)
         {
             dataString = "DATA: " + dataString.Replace("\r", "\r\n");
+            ConsoleOutput(dataString);
+            var currentReading = string.Empty;
             //extract the reading
             switch (selectedModel)
             {
@@ -300,17 +309,20 @@ namespace Samples
                             var dataArray = dataString.Split('|');
                             if (dataArray.Count() > 4)
                             {
-                                Reading = dataArray[5].Trim();
+                                currentReading = dataArray[5].Trim();
                                 //save the data to azure storage
                                 Reading rdata = new Reading
                                 {
-                                    ReadingValue = Reading
+                                    ReadingValue = currentReading
                                 };
+                                Reading = currentReading;
                                 Task.Run(() => StorageHelper.WriteData(rdata));
-                                dataString += "\r\n数据读取并保存成功\r\n";
+                                ConsoleOutput("数据读取并保存成功");
+
+                                return true;
                             }
                         }
-                        catch { }
+                        catch { return false; }
                     }
                     break;
                 case ModelType.FlowcomS8:
@@ -321,22 +333,28 @@ namespace Samples
                             var dataArray = dataString.Split(',');
                             if (dataArray.Count() > 1)
                             {
-                                Reading = dataArray[2].Trim();
-                                //save the data to azure storage
-                                Reading rdata = new Reading
+                                currentReading = dataArray[2].Trim();
+
+                                if (Convert.ToDouble(currentReading) > 0)
                                 {
-                                    ReadingValue = Reading
-                                };
-                                Task.Run(() => StorageHelper.WriteData(rdata));
-                                dataString += "\r\n数据读取并保存成功\r\n";
+                                    //save the data to azure storage
+                                    Reading rdata = new Reading
+                                    {
+                                        ReadingValue = currentReading
+                                    };
+                                    Reading = currentReading;
+                                    Task.Run(() => StorageHelper.WriteData(rdata));
+                                    ConsoleOutput("数据读取并保存成功");
+                                    return true;
+                                }
                             }
                         }
-                        catch { }
+                        catch { return false; }
                     }
                     break;
             }
 
-            return dataString;
+            return false;
         }
         private void SendCommand(IGattCharacteristic wc)
         {

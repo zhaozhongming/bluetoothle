@@ -34,7 +34,7 @@ namespace Samples
            SelectDevice = ReactiveCommand.CreateFromTask<DeviceItem>(
                x => navigationService.Navigate("APWorkPage", new NavigationParameters
                     {
-                        { "adapter", CrossBleAdapter.Current }, { "knownId", x.Id }, { "modelType", selectedModel}
+                        { "adapter", CrossBleAdapter.Current }, { "knownId", x.Id }, { "modelType", selectedModel}, { "PreDefinedGuid", PreDefinedGuid}
                     })
            );
         }
@@ -47,7 +47,7 @@ namespace Samples
             PreDefinedGuid = new List<DeviceItem>();
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-ee5d6da44ba7"), "00000000-0000-0000-0000-ee5d6da44ba7"));
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-cc81d47f7569"), "00000000-0000-0000-0000-cc81d47f7569"));
-            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-000000000000"), "不知道选哪个的同学点这里"));
+            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-000000000000"), "我 不 知 道"));
         }
     }
 }
