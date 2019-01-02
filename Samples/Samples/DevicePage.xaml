@@ -23,7 +23,7 @@
 
                 <ListView.GroupHeaderTemplate>
                     <DataTemplate>
-                        <ViewCell Height="30">
+                        <ViewCell Height="60">
                             <ContentView Padding="20,0,0,0">
                                 <Label Text="{Binding Name, StringFormat='Service {0}'}"
                                        FontSize="18"
@@ -35,7 +35,7 @@
 
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <ViewCell Height="200">
+                        <ViewCell Height="120">
                             <ViewCell.View>
                                 <StackLayout>
                                     <Label Text="{Binding Description}" FontAttributes="Bold" TextColor="Red" />
