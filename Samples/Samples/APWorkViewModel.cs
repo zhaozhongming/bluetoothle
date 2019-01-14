@@ -19,10 +19,12 @@ namespace Samples
         private Guid knownId;
         private List<DeviceItem> allowedDevices = new List<DeviceItem>();
 
+        #region HC-42 service
         const string serviceidHC = "0000ffe0-0000-1000-8000-00805f9b34fb";//taobao HC-42
         static readonly Guid serviceguidHC = new Guid(serviceidHC);
         const string cidHC = "0000ffe1-0000-1000-8000-00805f9b34fb";//taobao bluetooth HC-42
         static readonly Guid wguid = new Guid(cidHC);
+        #endregion
 
         #region 3000
         protected byte address = 0x00;
