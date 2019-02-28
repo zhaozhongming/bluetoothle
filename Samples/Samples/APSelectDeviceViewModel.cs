@@ -45,8 +45,9 @@ namespace Samples
             this.selectedModel = parameters.GetValue<ModelType>("modelType");
 
             PreDefinedGuid = new List<DeviceItem>();
-            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-ee5d6da44ba7"), "00000000-0000-0000-0000-ee5d6da44ba7"));
-            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-cc81d47f7569"), "00000000-0000-0000-0000-cc81d47f7569"));
+            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-ee5d6da44ba7(test1)"), "00000000-0000-0000-0000-ee5d6da44ba7"));
+            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-cc81d47f7569(test2)"), "00000000-0000-0000-0000-cc81d47f7569"));
+            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-d5e368beeb52(boxtest1)"), "00000000-0000-0000-0000-d5e368beeb52"));
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-000000000000"), "我 不 知 道"));
         }
     }
