@@ -217,6 +217,7 @@ namespace Samples
                         switch (status)
                         {
                             case ConnectionStatus.Connecting:
+                                ConsoleOutput("正在重新连接设备......");
                                 break;
                             case ConnectionStatus.Connected:
                                 FoundDevice = true;

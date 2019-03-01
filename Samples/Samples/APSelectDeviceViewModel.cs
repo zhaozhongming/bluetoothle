@@ -48,7 +48,8 @@ namespace Samples
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-ee5d6da44ba7"), "00000000-0000-0000-0000-ee5d6da44ba7(test1)"));
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-cc81d47f7569"), "00000000-0000-0000-0000-cc81d47f7569(test2)"));
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-d5e368beeb52"), "00000000-0000-0000-0000-d5e368beeb52(boxtest1)"));
-            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-d9bcfc833039"), "00000000-0000-0000-0000-d9bcfc833039(boxtest1)"));
+            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-d9bcfc833039"), "00000000-0000-0000-0000-d9bcfc833039(boxtest2)"));
+            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-d3625e655b9c"), "00000000-0000-0000-0000-d3625e655b9c(boxtest3)"));
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-000000000000"), "我 不 知 道"));
         }
     }
