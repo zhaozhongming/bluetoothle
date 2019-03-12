@@ -45,15 +45,16 @@ namespace Samples
             this.selectedModel = parameters.GetValue<ModelType>("modelType");
 
             PreDefinedGuid = new List<DeviceItem>();
-            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-ee5d6da44ba7"), "00000000-0000-0000-0000-ee5d6da44ba7(test1)"));
-            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-cc81d47f7569"), "00000000-0000-0000-0000-cc81d47f7569(test2)"));
+
+            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-d56b95b03038"), "00000000-0000-0000-0000-d56b95b03038(beta1)"));
+            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-c2352dd41a10"), "00000000-0000-0000-0000-c2352dd41a10(beta2)"));
+            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-ee5d6da44ba7"), "00000000-0000-0000-0000-ee5d6da44ba7(mytest1)"));
+            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-cc81d47f7569"), "00000000-0000-0000-0000-cc81d47f7569(mytest2)"));
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-d5e368beeb52"), "00000000-0000-0000-0000-d5e368beeb52(boxtest1)"));
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-d9bcfc833039"), "00000000-0000-0000-0000-d9bcfc833039(boxtest2)"));
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-d3625e655b9c"), "00000000-0000-0000-0000-d3625e655b9c(boxtest3)"));
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-cb6b72c108ab"), "00000000-0000-0000-0000-cb6b72c108ab(boxtest4)"));
-            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-d56b95b03038"), "00000000-0000-0000-0000-d56b95b03038(boxtest5)"));
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-eff2fbbce0af"), "00000000-0000-0000-0000-eff2fbbce0af(boxtest6)"));
-            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-c2352dd41a10"), "00000000-0000-0000-0000-c2352dd41a10(boxtest7)"));
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-000000000000"), "自 动 连 接"));
         }
     }
