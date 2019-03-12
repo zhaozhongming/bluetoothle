@@ -51,7 +51,7 @@ namespace Samples
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-d9bcfc833039"), "00000000-0000-0000-0000-d9bcfc833039(boxtest2)"));
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-d3625e655b9c"), "00000000-0000-0000-0000-d3625e655b9c(boxtest3)"));
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-cb6b72c108ab"), "00000000-0000-0000-0000-cb6b72c108ab(boxtest4)"));
-            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-d56b95b03038"), "00000000-0000-0000-0000-d56b95b03038(boxtest4)"));
+            PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-d56b95b03038"), "00000000-0000-0000-0000-d56b95b03038(boxtest5)"));
             PreDefinedGuid.Add(new DeviceItem(new Guid("00000000-0000-0000-0000-000000000000"), "自 动 连 接"));
         }
     }
