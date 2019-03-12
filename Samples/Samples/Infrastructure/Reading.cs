@@ -10,5 +10,6 @@ namespace Samples.Infrastructure
         public DateTime ReadingTime { get; set; }
 
         public string ReadingValue { get; set; }
+        public string DeviceId { get; set; }
     }
 }

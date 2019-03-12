@@ -316,7 +316,8 @@ namespace Samples
                                 //save the data to azure storage
                                 Reading rdata = new Reading
                                 {
-                                    ReadingValue = currentReading
+                                    ReadingValue = currentReading,
+                                    DeviceId = this.knownId.ToString()
                                 };
                                 Reading = currentReading;
                                 Task.Run(() => StorageHelper.WriteData(rdata));
@@ -343,7 +344,8 @@ namespace Samples
                                     //save the data to azure storage
                                     Reading rdata = new Reading
                                     {
-                                        ReadingValue = currentReading
+                                        ReadingValue = currentReading,
+                                        DeviceId = this.knownId.ToString()
                                     };
                                     Reading = currentReading;
                                     Task.Run(() => StorageHelper.WriteData(rdata));
