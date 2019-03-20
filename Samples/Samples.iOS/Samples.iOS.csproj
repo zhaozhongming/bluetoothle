@@ -106,10 +106,6 @@
     <ITunesArtwork Include="iTunesArtwork%402x" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Plugin.BluetoothLE\Plugin.BluetoothLE.csproj">
-      <Project>{f44febba-7ea7-4b92-bf25-ebdcc1db1830}</Project>
-      <Name>Plugin.BluetoothLE</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Samples\Samples.csproj">
       <Name>Samples</Name>
       <Project>{AF0917DD-079A-49CB-9115-BA08340E4ED8}</Project>
@@ -133,6 +129,9 @@
     <BundleResource Include="Resources\Icon-Small%403x.png" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Plugin.BluetoothLE">
+      <Version>6.2.3</Version>
+    </PackageReference>
     <PackageReference Include="System.Threading.Tasks.Extensions">
       <Version>4.4.0</Version>
     </PackageReference>
